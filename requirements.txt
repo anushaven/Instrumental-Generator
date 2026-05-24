@@ -1,6 +1,9 @@
 gradio
-demucs
 torch
 torchaudio
-soundfile
+torchvision
+demucs
 ffmpeg-python
+pydub
+soundfile
+torchcodec
