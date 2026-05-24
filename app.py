@@ -4,8 +4,31 @@ from main import separate_audio
 
 def process_file(file):
     try:
-        instrumental_path = "separated/mdx/test1/no_vocals.wav"
-        vocals_path = "separated/mdx/test1/vocals.wav"
+        print("START DEMUCS")
+
+        input_path = file
+
+        subprocess.run(
+            [
+                "python",
+                "-m",
+                "demucs",
+                "--two-stems=vocals",
+                input_path
+            ],
+            check=True
+        )
+
+        filename = os.path.splitext(os.path.basename(input_path))[0]
+
+        instrumental_path = f"separated/mdx/{filename}/no_vocals.wav"
+        vocals_path = f"separated/mdx/{filename}/vocals.wav"
+
+        print("INSTRUMENTAL PATH:", instrumental_path)
+        print("VOCALS PATH:", vocals_path)
+
+        print("Instrumental exists:", os.path.exists(instrumental_path))
+        print("Vocals exists:", os.path.exists(vocals_path))
 
         return (
             instrumental_path,
