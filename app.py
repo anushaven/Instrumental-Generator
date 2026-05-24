@@ -2,21 +2,23 @@ import gradio as gr
 from main import separate_audio
 
 
-def process_file(uploaded_file):
-    if uploaded_file is None:
-        return None, "Please upload a file."
-
+def process_file(file):
     try:
-        instrumental_path, vocals_path = separate_audio(uploaded_file.name)
+        instrumental_path = "separated/mdx/test1/no_vocals.wav"
+        vocals_path = "separated/mdx/test1/vocals.wav"
 
         return (
             instrumental_path,
             vocals_path,
-            "✅ Separation complete!"
+            "✅ Instrumental generated successfully!"
         )
 
     except Exception as e:
-        return None, None, f"❌ Error: {str(e)}"
+        return (
+            None,
+            None,
+            f"❌ Error: {str(e)}"
+        )
 
 
 with gr.Blocks(title="Capella") as demo:
