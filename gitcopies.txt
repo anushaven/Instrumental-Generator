@@ -1,0 +1,30 @@
+# =========================
+# 1. Clean repo
+# =========================
+cp /mnt/c/Users/anush/Capella/main.py ~/clean-repo/
+cp /mnt/c/Users/anush/Capella/app.py ~/clean-repo/
+cp /mnt/c/Users/anush/Capella/requirements.txt ~/clean-repo/
+
+cd ~/clean-repo
+git add .
+git commit -m "Sync changes from Capella workspace"
+git push origin main
+
+ython3 -m venv venv
+/bin/activate
+pip install gradio yt-dlp demucs torch torchaudio soundfile ffmpeg-python
+
+# =========================
+# 1a. Build Errors in HF
+# =========================
+git remote add hf https://huggingface.co/spaces/anushaven/Instrumental-Generator
+git push hf main --force
+
+# =========================
+# 2. Capella repo
+# =========================
+cd /mnt/c/Users/anush/Capella
+git status
+git add .
+git commit -m "Modified x"
+git push origin main

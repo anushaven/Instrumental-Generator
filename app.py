@@ -1,9 +1,18 @@
 import gradio as gr
+
 from main import separate_audio
 import os 
 import subprocess
 
 
+=======
+import os
+import subprocess
+
+
+# ----------------------------
+# PROCESSING FUNCTION
+# ----------------------------
 def process_file(file):
     try:
         print("START DEMUCS")
@@ -18,10 +27,20 @@ def process_file(file):
                 "--two-stems=vocals",
                 input_path
             ],
+
+        if file is None:
+            return None, None, "❌ No file uploaded"
+
+        input_path = file
+
+        subprocess.run(
+            ["python", "-m", "demucs", "--two-stems=vocals", input_path],
+
             check=True
         )
 
         filename = os.path.splitext(os.path.basename(input_path))[0]
+
 
         instrumental_path = f"separated/mdx/{filename}/no_vocals.wav"
         vocals_path = f"separated/mdx/{filename}/vocals.wav"
@@ -32,9 +51,33 @@ def process_file(file):
         print("Instrumental exists:", os.path.exists(instrumental_path))
         print("Vocals exists:", os.path.exists(vocals_path))
 
+        base_dir = "/app/separated"
+
+        track_dir = None
+        if os.path.exists(base_dir):
+            for model_folder in os.listdir(base_dir):
+                candidate = os.path.join(base_dir, model_folder, filename)
+                if os.path.exists(candidate):
+                    track_dir = candidate
+                    break
+
+        if track_dir is None:
+            return None, None, "❌ Could not find output folder"
+
+        instrumental_path = os.path.join(track_dir, "no_vocals.wav")
+        vocals_path = os.path.join(track_dir, "vocals.wav")
+
+        if not os.path.exists(instrumental_path):
+            return None, None, "❌ Missing instrumental output"
+
+        if not os.path.exists(vocals_path):
+            return None, None, "❌ Missing vocals output"
+
+
         return (
             instrumental_path,
             vocals_path,
+
             "✅ Instrumental generated successfully!"
         )
 
@@ -122,9 +165,48 @@ with gr.Blocks(title="Capella") as demo:
             label="🎤 Vocals"
         )
 
+            "✅ Done! Your instrumental is ready."
+        )
+
+    except Exception as e:
+        return None, None, f"❌ Error: {str(e)}"
+
+
+# ----------------------------
+# UI
+# ----------------------------
+with gr.Blocks() as demo:
+
+    gr.Markdown("# 🎵 Capella - Instrumental Generator")
+
+    gr.Markdown(
+        """
+### 📌 Instructions
+- Upload an **audio or video file**
+- If your file is from YouTube, **use a screen recording tool (Snipping Tool / Xbox Game Bar / OBS)** to capture audio
+- Supported formats: **MP3, WAV, MP4, M4A, WEBM**
+- Processing may take **up to 10 minutes depending on file size**
+- Please wait — do not refresh while processing
+        """
+    )
+
+    upload = gr.File(
+        label="Upload File",
+        file_types=[".mp3", ".wav", ".mp4", ".m4a", ".webm"]
+    )
+
+    instrumental_output = gr.Audio(label="Instrumental Output")
+    vocals_output = gr.Audio(label="Vocals Output")
+
+    status = gr.Textbox(label="Status")
+
+    process_button = gr.Button("Generate Instrumental")
+
+
     process_button.click(
         fn=process_file,
         inputs=upload,
+
         outputs=[
             instrumental_output,
             vocals_output,
@@ -136,3 +218,9 @@ demo.launch(
     server_name="0.0.0.0",
     server_port=7860
 )
+
+        outputs=[instrumental_output, vocals_output, status]
+    )
+
+demo.launch()
+
