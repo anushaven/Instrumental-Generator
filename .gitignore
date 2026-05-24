@@ -1,0 +1,13 @@
+__pycache__/
+venv/
+.venv/
+separated/
+outputs/
+downloads/
+tmp/
+
+*.mp3
+*.wav
+*.mp4
+*.th
+*.pth
